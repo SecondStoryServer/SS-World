@@ -1,4 +1,0 @@
-rootProject.name = 'SS-World'
-
-include("SS-Core")
-project(":SS-Core").projectDir = file("C:\\Folder\\SS\\SS-Core")

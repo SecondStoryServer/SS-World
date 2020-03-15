@@ -3,6 +3,5 @@ version: "1.0"
 api-version: "1.13"
 main: me.syari.ss.world.Main
 author: sya_ri
-load: STARTUP
 depend:
   - "SS-Core"

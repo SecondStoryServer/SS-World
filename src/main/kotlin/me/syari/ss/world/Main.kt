@@ -1,6 +1,7 @@
 package me.syari.ss.world
 
-import me.syari.ss.core.auto.FunctionInit
+import me.syari.ss.core.auto.Event
+import me.syari.ss.core.auto.OnEnable
 import org.bukkit.plugin.java.JavaPlugin
 
 class Main : JavaPlugin(){
@@ -10,6 +11,7 @@ class Main : JavaPlugin(){
 
     override fun onEnable() {
         worldPlugin = this
-        FunctionInit.register(WorldCommand)
+        OnEnable.register(WorldManage)
+        Event.register(this, WorldListener)
     }
 }
