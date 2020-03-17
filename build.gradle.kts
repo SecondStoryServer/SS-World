@@ -4,7 +4,7 @@ plugins {
     kotlin("jvm") version "1.3.70"
 }
 
-group = "me.syari.ss.core"
+group = "me.syari.ss.world"
 
 repositories {
     mavenCentral()
