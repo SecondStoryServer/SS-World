@@ -18,6 +18,7 @@ import org.bukkit.World
 import org.bukkit.WorldType
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import java.io.File
 
 object WorldManage: OnEnable {
     override fun onEnable() {
@@ -33,6 +34,10 @@ object WorldManage: OnEnable {
                 )
             }
             if(SSWorld.containsWorld(name)) return sendError(ErrorMessage.AlreadyExist)
+            if(load){
+                val loadWorld = File(worldPlugin.server.worldContainer, name)
+                if(!loadWorld.exists() || !loadWorld.isDirectory) return sendWithPrefix("&cワールド &a$name &c存在しません")
+            }
             val creator = SSWorldCreator(name)
             val environment = args.getFlag("-w")
             creator.environment = getEnvironmentFromString(environment) ?: return sendWithPrefix("&cワールドディメンションの値がおかしいです")
@@ -40,12 +45,12 @@ object WorldManage: OnEnable {
             creator.worldType = getWorldTypeFromString(creator, worldType) ?: return sendWithPrefix("&cワールドタイプの値がおかしいです")
             val generateStructures = getGenerateStructuresFromString(args.getFlag("-s"))
             creator.generateStructures = generateStructures ?: return sendWithPrefix("&c建造物生成の値がおかしいです")
-            sendWithPrefix("&fワールドを${type}します")
-            if(creator.create(load) != null){
-                sendWithPrefix("&fワールドを${type}しました")
+            sendWithPrefix("&fワールド &a$name &fを${type}します")
+            if(creator.create() != null){
+                sendWithPrefix("&fワールド &a$name &fを${type}しました")
                 saveWorldConfig(name, environment, worldType, generateStructures)
             } else {
-                sendWithPrefix("&cワールド${type}に失敗しました")
+                sendWithPrefix("&cワールド &a$name &fの${type}に失敗しました")
             }
         }
 
@@ -59,7 +64,7 @@ object WorldManage: OnEnable {
             flag("delete *",
                 "-r" to element("true", "false")
             ),
-            tab("delete", "tp"){ _, _ -> element(SSWorld.worldNameList()) }
+            tab("delete", "tp"){ _, _ -> element(SSWorld.worldNameList) }
         ){ sender, args ->
             when(args.whenIndex(0)){
                 "create" -> {
@@ -78,13 +83,18 @@ object WorldManage: OnEnable {
                     }
                     val world = SSWorld.getWorld(name) ?: return@createCommand sendError(ErrorMessage.NotExist)
                     val delete = args.getFlag("-r") == "true"
-                    world.unload(delete)
+                    sendWithPrefix("&fワールド &a${world.name} &f${if(delete) "のデータ" else ""}を削除します")
+                    if(world.unload(delete)){
+                        sendWithPrefix("&fワールド &a${world.name} &fの削除が完了しました")
+                    } else {
+                        sendWithPrefix("&cワールド &a${world.name} &cの削除に失敗しました")
+                    }
                 }
                 "config" -> {
 
                 }
                 "list" -> {
-                    sendList("ワールド一覧", SSWorld.worldNameList())
+                    sendList("ワールド一覧", SSWorld.worldNameList)
                 }
                 "tp" -> {
                     if(sender !is Player) return@createCommand sendError(ErrorMessage.OnlyPlayer)
@@ -105,6 +115,7 @@ object WorldManage: OnEnable {
             }
         }
 
+        SSWorld.setDataWorld(worldPlugin.server.worlds.first())
         loadConfig(console)
     }
 
@@ -112,20 +123,29 @@ object WorldManage: OnEnable {
 
     private fun loadConfig(sender: CommandSender): CustomConfig {
         return config(worldPlugin, sender, "config.yml", false){
+            val dataWorldName = SSWorld.dataWorld.name
+            var firstSpawnWorldName = getString("firstspawn", false)
             section("world")?.forEach { worldName ->
                 if(!SSWorld.containsWorld(worldName)) {
                     SSWorldCreator(worldName).apply {
                         getEnvironmentFromString(getString("world.$worldName.environment", false))?.let { environment = it }
                         getWorldTypeFromString(this, getString("world.$worldName.type", false))?.let { worldType = it }
                         generateStructures = getBoolean("world.$worldName.generateStructures", false, notFoundError = false)
-                    }.create(true)?.let { world ->
+                    }.create()?.let { world ->
                         Vector5D.fromString(getString("world.$worldName.spawn"))?.let { spawn ->
-                            world.setSpawnLocation(spawn, false)
+                            world.setSpawnLocation(spawn)
                         }
                         world.isAutoSave = getBoolean("world.$worldName.save", true, notFoundError = false)
+                        if(firstSpawnWorldName == worldName){
+                            world.isFistSpawnWorld = true
+                            firstSpawnWorldName = null
+                        }
                         SSWorld.addWorld(world)
                     }
                 }
+            }
+            if(firstSpawnWorldName != null){
+                set("firstspawn", dataWorldName, true)
             }
         }
     }

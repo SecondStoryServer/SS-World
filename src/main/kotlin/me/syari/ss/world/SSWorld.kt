@@ -16,11 +16,12 @@ class SSWorld(private val world: World) {
             field = value
         }
 
-    fun setSpawnLocation(vector5D: Vector5D, save: Boolean){
+    fun setSpawnLocation(vector5D: Vector5D){
         spawnLocation = vector5D.toLocation(world)
-        if(save){
-            worldConfig.set("world.$name.spawn", vector5D.toString())
-        }
+    }
+
+    fun saveSpawnLocation(){
+        worldConfig.set("world.$name.spawn", Vector5D.fromLocation(spawnLocation).toString())
     }
 
     fun teleportSpawn(player: Player){
@@ -33,17 +34,54 @@ class SSWorld(private val world: World) {
             world.isAutoSave = value
         }
 
-    fun unload(delete: Boolean) {
-        worldList.remove(name)
-        worldConfig.set("world.$name", null)
-        worldPlugin.server.unloadWorld(world, !delete)
-        if(delete){
-            world.worldFolder.delete()
+    fun unload(delete: Boolean): Boolean {
+        if(isDataWorld) return false
+        world.players.forEach { player ->
+            teleportSpawn(player)
         }
+        val unloaded = worldPlugin.server.unloadWorld(world, !delete)
+        if(unloaded){
+            if(delete){
+                val deleted = world.worldFolder.delete()
+                if(!deleted) return false
+            }
+        } else {
+            return false
+        }
+        isFistSpawnWorld = false
+        worldList.remove(name)
+        worldConfig.set("world.$name", null, true)
+        return true
     }
+
+    val isDataWorld
+        get() = dataWorld == this
+
+    var isFistSpawnWorld
+        get() = firstSpawnWorld == this
+        set(value) {
+            if(value){
+                firstSpawnWorld = this
+            } else if(isFistSpawnWorld){
+                firstSpawnWorld = dataWorld
+            }
+        }
 
     companion object {
         private val worldList = mutableMapOf<String, SSWorld>()
+
+        lateinit var dataWorld: SSWorld
+            private set
+
+        lateinit var firstSpawnWorld: SSWorld
+            private set
+
+        fun setDataWorld(world: World){
+            val dataWorld = SSWorld(world)
+            addWorld(dataWorld)
+            this.dataWorld = dataWorld
+            this.firstSpawnWorld = dataWorld
+        }
 
         fun addWorld(ssWorld: SSWorld){
             worldList[ssWorld.name] = ssWorld
@@ -53,6 +91,6 @@ class SSWorld(private val world: World) {
 
         fun getWorld(name: String) = worldList[name]
 
-        fun worldNameList() = worldList.keys.toSet()
+        val worldNameList get() = worldList.keys.toSet()
     }
 }

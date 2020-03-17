@@ -15,7 +15,7 @@ class SSWorldCreator(private val name: String){
     var generateStructures = false
     var voidWorld = false
 
-    fun create(load: Boolean): SSWorld? {
+    fun create(): SSWorld? {
         worldCreator
             .environment(environment)
             .type(worldType)
@@ -27,8 +27,9 @@ class SSWorldCreator(private val name: String){
         return worldCreator.createWorld()?.let {
             SSWorld(it).apply {
                 if(voidWorld){
-                    setSpawnLocation(Vector5D(0.5, 64.0, 0.5), !load)
+                    setSpawnLocation(Vector5D(0.5, 64.0, 0.5))
                 }
+                saveSpawnLocation()
                 SSWorld.addWorld(this)
             }
         }
