@@ -1,5 +1,5 @@
 name: SS-World
-version: "1.0"
+version: @version@
 api-version: "1.15"
 main: me.syari.ss.world.Main
 author: sya_ri
