@@ -19,7 +19,8 @@ repositories {
 
 dependencies {
     implementation("com.destroystokyo.paper:paper-api:1.15.2-R0.1-SNAPSHOT")
-    implementation("me.syari.ss.core:SS-Core:1.0")
+    implementation("me.syari.ss.core:SS-Core:2.1")
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 compileKotlin {
@@ -33,5 +34,10 @@ jar {
 processResources {
     from(sourceSets.main.resources.srcDirs) {
         filter ReplaceTokens, tokens: [version: version]
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }

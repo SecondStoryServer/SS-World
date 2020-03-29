@@ -11,6 +11,7 @@ import me.syari.ss.core.command.create.CreateCommand.tab
 import me.syari.ss.core.command.create.ErrorMessage
 import me.syari.ss.core.config.CreateConfig.config
 import me.syari.ss.core.config.CustomConfig
+import me.syari.ss.core.config.dataType.ConfigDataType
 import me.syari.ss.core.world.Vector5D
 import me.syari.ss.world.Main.Companion.worldPlugin
 import me.syari.ss.world.creator.SSWorldCreator
@@ -124,18 +125,18 @@ object WorldManage: OnEnable {
     private fun loadConfig(sender: CommandSender): CustomConfig {
         return config(worldPlugin, sender, "config.yml", false){
             val dataWorldName = SSWorld.dataWorld.name
-            var firstSpawnWorldName = getString("firstspawn", false)
+            var firstSpawnWorldName = get("firstspawn", ConfigDataType.STRING, false)
             section("world")?.forEach { worldName ->
                 if(!SSWorld.containsWorld(worldName)) {
                     SSWorldCreator(worldName).apply {
-                        getEnvironmentFromString(getString("world.$worldName.environment", false))?.let { environment = it }
-                        getWorldTypeFromString(this, getString("world.$worldName.type", false))?.let { worldType = it }
-                        generateStructures = getBoolean("world.$worldName.generateStructures", false, notFoundError = false)
+                        getEnvironmentFromString(get("world.$worldName.environment", ConfigDataType.STRING, false))?.let { environment = it }
+                        getWorldTypeFromString(this, get("world.$worldName.type", ConfigDataType.STRING, false))?.let { worldType = it }
+                        generateStructures = get("world.$worldName.generateStructures", ConfigDataType.BOOLEAN, false, notFoundError = false)
                     }.create()?.let { world ->
-                        Vector5D.fromString(getString("world.$worldName.spawn"))?.let { spawn ->
+                        Vector5D.fromString(get("world.$worldName.spawn", ConfigDataType.STRING, true))?.let { spawn ->
                             world.setSpawnLocation(spawn)
                         }
-                        world.isAutoSave = getBoolean("world.$worldName.save", true, notFoundError = false)
+                        world.isAutoSave = get("world.$worldName.save", ConfigDataType.BOOLEAN, true, notFoundError = false)
                         if(firstSpawnWorldName == worldName){
                             world.isFistSpawnWorld = true
                             firstSpawnWorldName = null
