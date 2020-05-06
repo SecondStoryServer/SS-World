@@ -4,7 +4,7 @@ import me.syari.ss.core.auto.Event
 import me.syari.ss.core.auto.OnEnable
 import org.bukkit.plugin.java.JavaPlugin
 
-class Main : JavaPlugin(){
+class Main : JavaPlugin() {
     companion object {
         lateinit var worldPlugin: JavaPlugin
     }

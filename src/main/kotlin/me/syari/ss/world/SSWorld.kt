@@ -16,15 +16,15 @@ class SSWorld(private val world: World) {
             field = value
         }
 
-    fun setSpawnLocation(vector5D: Vector5D){
+    fun setSpawnLocation(vector5D: Vector5D) {
         spawnLocation = vector5D.toLocation(world)
     }
 
-    fun saveSpawnLocation(){
+    fun saveSpawnLocation() {
         worldConfig.set("world.$name.spawn", Vector5D.fromLocation(spawnLocation).toString())
     }
 
-    fun teleportSpawn(player: Player){
+    fun teleportSpawn(player: Player) {
         player.teleport(spawnLocation)
     }
 
@@ -35,15 +35,15 @@ class SSWorld(private val world: World) {
         }
 
     fun unload(delete: Boolean): Boolean {
-        if(isDataWorld) return false
+        if (isDataWorld) return false
         world.players.forEach { player ->
             teleportSpawn(player)
         }
         val unloaded = worldPlugin.server.unloadWorld(world, !delete)
-        if(unloaded){
-            if(delete){
+        if (unloaded) {
+            if (delete) {
                 val deleted = world.worldFolder.delete()
-                if(!deleted) return false
+                if (!deleted) return false
             }
         } else {
             return false
@@ -60,9 +60,9 @@ class SSWorld(private val world: World) {
     var isFistSpawnWorld
         get() = firstSpawnWorld == this
         set(value) {
-            if(value){
+            if (value) {
                 firstSpawnWorld = this
-            } else if(isFistSpawnWorld){
+            } else if (isFistSpawnWorld) {
                 firstSpawnWorld = dataWorld
             }
         }
@@ -76,14 +76,14 @@ class SSWorld(private val world: World) {
         lateinit var firstSpawnWorld: SSWorld
             private set
 
-        fun setDataWorld(world: World){
+        fun setDataWorld(world: World) {
             val dataWorld = SSWorld(world)
             addWorld(dataWorld)
             this.dataWorld = dataWorld
             this.firstSpawnWorld = dataWorld
         }
 
-        fun addWorld(ssWorld: SSWorld){
+        fun addWorld(ssWorld: SSWorld) {
             worldList[ssWorld.name] = ssWorld
         }
 

@@ -7,22 +7,22 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 
-object WorldListener: Event {
+object WorldListener : Event {
     @EventHandler
-    fun on(e: PlayerJoinEvent){
+    fun on(e: PlayerJoinEvent) {
         val firstSpawnWorld = SSWorld.firstSpawnWorld
-        if(firstSpawnWorld.isDataWorld) return
+        if (firstSpawnWorld.isDataWorld) return
         val player = e.player
-        if(!player.hasPlayedBefore()){
-            runLater(worldPlugin, 3){
+        if (!player.hasPlayedBefore()) {
+            runLater(worldPlugin, 3) {
                 firstSpawnWorld.teleportSpawn(player)
             }
         }
     }
 
     @EventHandler
-    fun on(e: PlayerRespawnEvent){
-        if(e.isBedSpawn) return
+    fun on(e: PlayerRespawnEvent) {
+        if (e.isBedSpawn) return
         val world = SSWorld(e.respawnLocation.world)
         e.respawnLocation = world.spawnLocation
     }
