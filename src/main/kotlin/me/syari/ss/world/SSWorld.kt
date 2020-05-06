@@ -1,8 +1,8 @@
 package me.syari.ss.world
 
 import me.syari.ss.core.world.Vector5D
+import me.syari.ss.world.CommandCreator.worldConfig
 import me.syari.ss.world.Main.Companion.worldPlugin
-import me.syari.ss.world.WorldManage.worldConfig
 import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Player

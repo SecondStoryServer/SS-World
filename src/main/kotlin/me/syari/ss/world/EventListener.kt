@@ -7,7 +7,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 
-object WorldListener : Event {
+object EventListener : Event {
     @EventHandler
     fun on(e: PlayerJoinEvent) {
         val firstSpawnWorld = SSWorld.firstSpawnWorld

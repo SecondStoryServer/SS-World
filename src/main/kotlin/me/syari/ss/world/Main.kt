@@ -11,7 +11,7 @@ class Main : JavaPlugin() {
 
     override fun onEnable() {
         worldPlugin = this
-        OnEnable.register(WorldManage)
-        Event.register(this, WorldListener)
+        OnEnable.register(CommandCreator)
+        Event.register(this, EventListener)
     }
 }

@@ -21,7 +21,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import java.io.File
 
-object WorldManage : OnEnable {
+object CommandCreator : OnEnable {
     override fun onEnable() {
         fun CommandMessage.createWorld(args: CommandArgument, load: Boolean) {
             val name = args.getOrNull(1)
