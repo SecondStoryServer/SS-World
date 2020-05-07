@@ -85,6 +85,7 @@ class SSWorld(private val world: World) {
 
     companion object {
         private val worldList = mutableMapOf<String, SSWorld>()
+        private val worldNameMutableList = mutableSetOf<String>()
 
         lateinit var dataWorld: SSWorld
             private set
@@ -100,18 +101,19 @@ class SSWorld(private val world: World) {
         }
 
         fun addWorld(ssWorld: SSWorld) {
-            worldList[ssWorld.name] = ssWorld
+            worldList[ssWorld.name.toLowerCase()] = ssWorld
+            worldNameMutableList.add(ssWorld.name)
         }
 
         fun containsWorld(name: String) = worldList.contains(name)
 
-        fun getWorld(name: String) = worldList[name]
+        fun getWorld(name: String) = worldList[name.toLowerCase()]
 
         fun getWorld(world: World) = getWorld(world.name)
 
         fun getWorld(entity: Entity) = getWorld(entity.world)
 
-        val worldNameList get() = worldList.keys.toSet()
+        val worldNameList get() = worldNameMutableList.toSet()
     }
 
     enum class UnloadResult(val message: String) {
