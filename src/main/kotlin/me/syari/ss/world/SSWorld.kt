@@ -5,6 +5,7 @@ import me.syari.ss.world.ConfigLoader.worldConfig
 import me.syari.ss.world.Main.Companion.worldPlugin
 import org.bukkit.Location
 import org.bukkit.World
+import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 
 class SSWorld(private val world: World) {
@@ -90,6 +91,10 @@ class SSWorld(private val world: World) {
         fun containsWorld(name: String) = worldList.contains(name)
 
         fun getWorld(name: String) = worldList[name]
+
+        fun getWorld(world: World) = getWorld(world.name)
+
+        fun getWorld(entity: Entity) = getWorld(entity.world)
 
         val worldNameList get() = worldList.keys.toSet()
     }

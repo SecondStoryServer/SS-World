@@ -57,7 +57,7 @@ object CommandCreator : OnEnable {
         }
 
         createCommand(worldPlugin, "world", "SSWorld",
-            tab { _, _ -> element("create", "load", "delete", "config", "list", "tp") },
+            tab { _, _ -> element("create", "load", "delete", "config", "list", "tp", "spawn") },
             flag(
                 "create *",
                 "-w" to element("normal", "nether", "end"),
@@ -107,6 +107,11 @@ object CommandCreator : OnEnable {
                     val world = SSWorld.getWorld(worldName) ?: return@createCommand sendError(ErrorMessage.NotExist)
                     world.teleportSpawn(sender)
                 }
+                "spawn" -> {
+                    if (sender !is Player) return@createCommand sendError(ErrorMessage.OnlyPlayer)
+                    val world = SSWorld.getWorld(sender) ?: return@createCommand sendError("ワールドが存在しません")
+                    world.teleportSpawn(sender)
+                }
                 else -> {
                     sendHelp(
                         "world create" to "新規ワールドを生成します",
@@ -114,7 +119,8 @@ object CommandCreator : OnEnable {
                         "world delete" to "ワールドを削除します",
                         "world config" to "ワールドの設定をします",
                         "world list" to "ワールドの一覧を表示します",
-                        "world tp" to "ワールドにテレポートします"
+                        "world tp" to "ワールドにテレポートします",
+                        "world spawn" to "スポーン地点にテレポートします"
                     )
                 }
             }

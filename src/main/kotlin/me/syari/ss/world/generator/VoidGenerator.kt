@@ -1,6 +1,5 @@
 package me.syari.ss.world.generator
 
-import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Biome
 import org.bukkit.generator.ChunkGenerator
@@ -16,12 +15,11 @@ class VoidGenerator : ChunkGenerator() {
     ): ChunkData {
         return createChunkData(world).apply {
             for (x in 0..15) {
-                for (z in 0..15) {
-                    biome.setBiome(x, z, Biome.THE_VOID)
+                for(y in 0..255){
+                    for (z in 0..15) {
+                        biome.setBiome(x, y, z, Biome.THE_VOID)
+                    }
                 }
-            }
-            if (ChunkX shl 4 <= 0 && 0 < ChunkX + 1 shl 4 && ChunkZ shl 4 <= 0 && 0 < ChunkZ + 1 shl 4) {
-                setBlock(0, 63, 0, Material.BEDROCK)
             }
         }
     }
