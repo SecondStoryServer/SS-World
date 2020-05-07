@@ -35,24 +35,26 @@ class SSWorld(private val world: World) {
             world.isAutoSave = value
         }
 
-    fun unload(delete: Boolean): Boolean {
-        if (isDataWorld) return false
+    fun unload(deleteWorldFolder: Boolean): UnloadResult {
+        if (isDataWorld) return UnloadResult.CanNotUnloadDataWorld
         world.players.forEach { player ->
             teleportSpawn(player)
         }
-        val unloaded = worldPlugin.server.unloadWorld(world, !delete)
-        if (unloaded) {
-            if (delete) {
-                val deleted = world.worldFolder.delete()
-                if (!deleted) return false
+        val successUnload = worldPlugin.server.unloadWorld(world, !deleteWorldFolder)
+        if (successUnload) {
+            if (deleteWorldFolder) {
+                val successDelete = world.worldFolder.delete()
+                if (!successDelete) {
+                    return UnloadResult.FailureDelete
+                }
             }
         } else {
-            return false
+            return UnloadResult.FailureUnload
         }
         isFistSpawnWorld = false
         worldList.remove(name)
         worldConfig.set("world.$name", null, true)
-        return true
+        return UnloadResult.Success
     }
 
     val isDataWorld
@@ -97,5 +99,14 @@ class SSWorld(private val world: World) {
         fun getWorld(entity: Entity) = getWorld(entity.world)
 
         val worldNameList get() = worldList.keys.toSet()
+    }
+
+    enum class UnloadResult(val message: String) {
+        CanNotUnloadDataWorld("データワールド"),
+        FailureUnload("アンロードに失敗"),
+        FailureDelete("ワールド削除に失敗"),
+        Success("成功しました");
+
+        val isSuccess get() = this == Success
     }
 }
