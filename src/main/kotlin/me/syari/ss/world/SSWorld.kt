@@ -8,6 +8,10 @@ import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
+import java.io.File
+
+
+
 
 class SSWorld(private val world: World) {
     val name = world.name
@@ -46,7 +50,7 @@ class SSWorld(private val world: World) {
         val successUnload = worldPlugin.server.unloadWorld(world, !deleteWorldFolder)
         if (successUnload) {
             if (deleteWorldFolder) {
-                val successDelete = world.worldFolder.delete()
+                val successDelete = deleteWorldFolder()
                 if (!successDelete) {
                     return UnloadResult.FailureDelete
                 }
@@ -58,6 +62,27 @@ class SSWorld(private val world: World) {
         worldList.remove(name)
         worldConfig.set("world.$name", null, true)
         return UnloadResult.Success
+    }
+
+    private fun deleteWorldFolder(): Boolean {
+        return try {
+            deleteDirectory(world.worldFolder)
+            true
+        } catch (ex: Exception) {
+            false
+        }
+    }
+
+    private fun deleteDirectory(file: File) {
+        if (file.exists()) {
+            if (file.isFile) {
+                file.delete()
+            } else if (file.isDirectory) {
+                file.listFiles()?.forEach {
+                    deleteDirectory(it)
+                }
+            }
+        }
     }
 
     val isDataWorld
