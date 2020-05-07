@@ -33,10 +33,13 @@ object CommandCreator : OnEnable {
                 "-t" to element("normal", "flat", "void"),
                 "-s" to element("true", "false")
             ),
-            tab("delete", "unload", "tp", "config spawn", "config area") { _, _ ->
+            tab("delete", "unload", "tp") { _, _ ->
                 element(SSWorld.worldNameList)
             },
-            tab("config") { _, _ -> element("firstspawn", "spawn", "area") }
+            tab("config") { _, _ -> element("firstspawn", "spawn", "area") },
+            tab("config firstspawn", "config spawn", "config area"){ _, _ ->
+                element("set")
+            }
         ) { sender, args ->
             when (args.whenIndex(0)) {
                 "create" -> {
@@ -254,7 +257,7 @@ object CommandCreator : OnEnable {
 
     private fun toString(area: WorldArea?): String {
         return if(area != null){
-            "&6中心(${area.centerX}, ${area.centerZ}) 半径(${area.radius})"
+            "&6X:${area.centerX}, Z:${area.centerZ}, radius:${area.radius}"
         } else {
             "&c未設定"
         }
