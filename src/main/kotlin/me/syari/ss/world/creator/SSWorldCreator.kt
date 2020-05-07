@@ -27,7 +27,7 @@ class SSWorldCreator(private val name: String) {
         return worldCreator.createWorld()?.let { world ->
             SSWorld(world).apply {
                 if (voidWorld) {
-                    setSpawnLocation(Vector5D(0.5, 64.0, 0.5))
+                    spawnVector5D = Vector5D(0.5, 64.0, 0.5)
                     val spawnBlock = world.getBlockAt(0, 63, 0)
                     if(spawnBlock.isEmpty){
                         spawnBlock.type = Material.BEDROCK

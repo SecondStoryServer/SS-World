@@ -41,7 +41,7 @@ object ConfigLoader {
                         )
                     }.create()?.let { world ->
                         Vector5D.fromString(get("world.$worldName.spawn", ConfigDataType.STRING, true))?.let { spawn ->
-                            world.setSpawnLocation(spawn)
+                            world.spawnVector5D = spawn
                         }
                         worldConfig.get("world.$worldName.area", ConfigDataType.STRING, false)?.let {  text ->
                             WorldArea.fromString(text)?.let { area ->

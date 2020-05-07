@@ -18,12 +18,14 @@ class SSWorld(private val world: World) {
             field = value
         }
 
-    fun setSpawnLocation(vector5D: Vector5D) {
-        spawnLocation = vector5D.toLocation(world)
-    }
+    var spawnVector5D: Vector5D
+        get() = Vector5D.fromLocation(spawnLocation)
+        set(value) {
+            spawnLocation = value.toLocation(world)
+        }
 
     fun saveSpawnLocation() {
-        worldConfig.set("world.$name.spawn", Vector5D.fromLocation(spawnLocation).toString())
+        worldConfig.set("world.$name.spawn", spawnVector5D.toString())
     }
 
     fun teleportSpawn(player: Player) {

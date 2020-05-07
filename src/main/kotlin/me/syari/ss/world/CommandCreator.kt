@@ -9,12 +9,15 @@ import me.syari.ss.core.command.create.CreateCommand.element
 import me.syari.ss.core.command.create.CreateCommand.flag
 import me.syari.ss.core.command.create.CreateCommand.tab
 import me.syari.ss.core.command.create.ErrorMessage
+import me.syari.ss.core.world.Vector5D
 import me.syari.ss.world.ConfigLoader.getEnvironmentFromString
 import me.syari.ss.world.ConfigLoader.getGenerateStructuresFromString
 import me.syari.ss.world.ConfigLoader.getWorldTypeFromString
 import me.syari.ss.world.ConfigLoader.loadConfig
 import me.syari.ss.world.ConfigLoader.saveWorldConfig
 import me.syari.ss.world.Main.Companion.worldPlugin
+import me.syari.ss.world.SSWorld.Companion.firstSpawnWorld
+import me.syari.ss.world.area.WorldArea
 import me.syari.ss.world.creator.SSWorldCreator
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -30,7 +33,9 @@ object CommandCreator : OnEnable {
                 "-t" to element("normal", "flat", "void"),
                 "-s" to element("true", "false")
             ),
-            tab("delete", "unload", "tp") { _, _ -> element(SSWorld.worldNameList) },
+            tab("delete", "unload", "tp", "config spawn", "config area") { _, _ ->
+                element(SSWorld.worldNameList)
+            },
             tab("config") { _, _ -> element("firstspawn", "spawn", "area") }
         ) { sender, args ->
             when (args.whenIndex(0)) {
@@ -47,15 +52,96 @@ object CommandCreator : OnEnable {
                     deleteWorld(args, false)
                 }
                 "config" -> {
-                    when(args.whenIndex(1)){
+                    when (args.whenIndex(1)) {
                         "firstspawn" -> {
-
+                            if(args.whenIndex(2) == "set"){
+                                val world = argsToWorld(args, 3) ?: return@createCommand
+                                if(world.isFistSpawnWorld){
+                                    val lastFirstSpawnWorld = firstSpawnWorld
+                                    world.isFistSpawnWorld = true
+                                    sendWithPrefix("サーバースポーンを &6${lastFirstSpawnWorld.name} &fから &6${world.name} &fに変更しました")
+                                } else {
+                                    sendError("既にサーバースポーンです")
+                                }
+                            } else {
+                                sendWithPrefix("サーバースポーン: &6${firstSpawnWorld.name}")
+                            }
                         }
                         "spawn" -> {
-
+                            if(sender !is Player) return@createCommand sendError(ErrorMessage.OnlyPlayer)
+                            val world = SSWorld.getWorld(sender) ?: return@createCommand sendError("ワールドが存在しません")
+                            if(args.whenIndex(2) == "set"){
+                                val vector5D = when(val size = args.size){
+                                    3 -> {
+                                        Vector5D.fromLocation(sender.location)
+                                    }
+                                    6, 8 -> {
+                                        try {
+                                            val x = args[3].toDouble()
+                                            val y = args[4].toDouble()
+                                            val z = args[5].toDouble()
+                                            if(size == 8){
+                                                val yaw = args[6].toFloat()
+                                                val pitch = args[7].toFloat()
+                                                Vector5D(x, y, z, yaw, pitch)
+                                            } else {
+                                                Vector5D(x, y, z)
+                                            }
+                                        } catch (ex: NumberFormatException){
+                                            return@createCommand sendError("座標変換に失敗しました")
+                                        }
+                                    }
+                                    else -> {
+                                        return@createCommand sendError("引数の数が間違っています")
+                                    }
+                                }
+                                world.spawnVector5D = vector5D
+                                world.saveSpawnLocation()
+                                sendWithPrefix("&6${world.name} &fのスポーン地点を &6${vector5D} &fに変更しました")
+                            } else {
+                                sendWithPrefix("ワールドスポーン: &6${world.spawnVector5D}")
+                            }
                         }
                         "area" -> {
-
+                            if(sender !is Player) return@createCommand sendError(ErrorMessage.OnlyPlayer)
+                            val world = SSWorld.getWorld(sender) ?: return@createCommand sendError("ワールドが存在しません")
+                            val lastArea = world.area
+                            if(args.whenIndex(2) == "set"){
+                                val area = when(args.size){
+                                    4 -> {
+                                        if (args.whenIndex(3) != "null") {
+                                            val location = sender.location
+                                            val x = location.x
+                                            val z = location.z
+                                            val radius = args[3].toDouble()
+                                            WorldArea(x, z, radius)
+                                        } else {
+                                            null
+                                        }
+                                    }
+                                    6 -> {
+                                        val x = args[3].toDouble()
+                                        val z = args[4].toDouble()
+                                        val radius = args[5].toDouble()
+                                        WorldArea(x, z, radius)
+                                    }
+                                    else -> {
+                                        return@createCommand sendError("引数の数が間違っています")
+                                    }
+                                }
+                                world.area = area
+                                world.saveArea()
+                                sendWithPrefix("&6${world.name} &fのワールドエリアを &6${toString(lastArea)} &fから &6${toString(area)} &fに変更しました")
+                            } else {
+                                sendWithPrefix("ワールドエリア: ${toString(lastArea)}")
+                            }
+                        }
+                        else -> {
+                            sendHelp(
+                                "world config firstspawn" to "サーバーのスポーンワールド",
+                                "world config spawn" to "ワールドのスポーン地点",
+                                "world config area" to "ワールドの範囲"
+                            )
                         }
                     }
                 }
@@ -84,11 +170,11 @@ object CommandCreator : OnEnable {
 
         createCommand(worldPlugin, "wtp", "SSWorld",
             tab { _, _ -> element(SSWorld.worldNameList) }
-        ){ sender, args ->
+        ) { sender, args ->
             teleportWorld(sender, args, 0)
         }
 
-        createCommand(worldPlugin, "spawn", "SSWorld"){ sender, _ ->
+        createCommand(worldPlugin, "spawn", "SSWorld") { sender, _ ->
             teleportSpawn(sender)
         }
 
@@ -96,14 +182,25 @@ object CommandCreator : OnEnable {
         loadConfig(console)
     }
 
-    private fun CommandMessage.teleportWorld(sender: CommandSender, args: CommandArgument, worldNameIndex: Int){
+    private fun CommandMessage.argsToWorld(args: CommandArgument, worldNameIndex: Int): SSWorld? {
+        args.getOrNull(worldNameIndex)?.let { worldName ->
+            SSWorld.getWorld(worldName)?.let { world ->
+                return world
+            }
+            sendError(ErrorMessage.NotExistName)
+            return null
+        }
+        sendError(ErrorMessage.NotEnterName)
+        return null
+    }
+
+    private fun CommandMessage.teleportWorld(sender: CommandSender, args: CommandArgument, worldNameIndex: Int) {
         if (sender !is Player) return sendError(ErrorMessage.OnlyPlayer)
-        val worldName = args.getOrNull(worldNameIndex) ?: return sendError(ErrorMessage.NotEnterName)
-        val world = SSWorld.getWorld(worldName) ?: return sendError(ErrorMessage.NotExistName)
+        val world = argsToWorld(args, worldNameIndex) ?: return
         world.teleportSpawn(sender)
     }
 
-    private fun CommandMessage.teleportSpawn(sender: CommandSender){
+    private fun CommandMessage.teleportSpawn(sender: CommandSender) {
         if (sender !is Player) return sendError(ErrorMessage.OnlyPlayer)
         val world = SSWorld.getWorld(sender) ?: return sendError("ワールドが存在しません")
         world.teleportSpawn(sender)
@@ -145,14 +242,21 @@ object CommandCreator : OnEnable {
     }
 
     private fun CommandMessage.deleteWorld(args: CommandArgument, deleteWorldFolder: Boolean) {
-        val name = args.getOrNull(1) ?: return sendError(ErrorMessage.NotEnterName)
-        val world = SSWorld.getWorld(name) ?: return sendError(ErrorMessage.NotExist)
+        val world = argsToWorld(args, 1) ?: return
         sendWithPrefix("&fワールド &a${world.name} &f${if (deleteWorldFolder) "のデータ" else ""}を削除します")
         val result = world.unload(deleteWorldFolder)
         if (result.isSuccess) {
             sendWithPrefix("&fワールド &a${world.name} &fの削除が完了しました")
         } else {
             sendWithPrefix("&cワールド &a${world.name} &cの削除に失敗しました (${result.message})")
+        }
+    }
+
+    private fun toString(area: WorldArea?): String {
+        return if(area != null){
+            "&6中心(${area.centerX}, ${area.centerZ}) 半径(${area.radius})"
+        } else {
+            "&c未設定"
         }
     }
 }
