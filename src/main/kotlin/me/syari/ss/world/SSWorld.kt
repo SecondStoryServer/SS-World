@@ -25,7 +25,7 @@ class SSWorld(private val world: World) {
         }
 
     fun saveSpawnLocation() {
-        worldConfig.set("world.$name.spawn", spawnVector5D.toString())
+        worldConfig.set("world.$name.spawn", spawnVector5D.toString(), true)
     }
 
     fun teleportSpawn(player: Player) {
@@ -80,7 +80,7 @@ class SSWorld(private val world: World) {
     }
 
     fun saveArea(){
-        worldConfig.set("world.$name.area", area?.toString())
+        worldConfig.set("world.$name.area", area?.toString(), true)
     }
 
     companion object {
