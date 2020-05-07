@@ -3,6 +3,7 @@ package me.syari.ss.world
 import me.syari.ss.core.world.Vector5D
 import me.syari.ss.world.ConfigLoader.worldConfig
 import me.syari.ss.world.Main.Companion.worldPlugin
+import me.syari.ss.world.area.WorldArea
 import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Entity
@@ -69,6 +70,16 @@ class SSWorld(private val world: World) {
                 firstSpawnWorld = dataWorld
             }
         }
+
+    var area: WorldArea? = null
+
+    fun isInArea(x: Double, z: Double): Boolean {
+        return area?.isInArea(x, z) ?: true
+    }
+
+    fun saveArea(){
+        worldConfig.set("world.$name.area", area?.toString())
+    }
 
     companion object {
         private val worldList = mutableMapOf<String, SSWorld>()

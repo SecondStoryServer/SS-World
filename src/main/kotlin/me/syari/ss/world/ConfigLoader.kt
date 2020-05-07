@@ -6,6 +6,7 @@ import me.syari.ss.core.config.CustomConfig
 import me.syari.ss.core.config.dataType.ConfigDataType
 import me.syari.ss.core.world.Vector5D
 import me.syari.ss.world.Main.Companion.worldPlugin
+import me.syari.ss.world.area.WorldArea
 import me.syari.ss.world.creator.SSWorldCreator
 import org.bukkit.World
 import org.bukkit.WorldType
@@ -41,6 +42,11 @@ object ConfigLoader {
                     }.create()?.let { world ->
                         Vector5D.fromString(get("world.$worldName.spawn", ConfigDataType.STRING, true))?.let { spawn ->
                             world.setSpawnLocation(spawn)
+                        }
+                        worldConfig.get("world.$worldName.area", ConfigDataType.STRING, false)?.let {  text ->
+                            WorldArea.fromString(text)?.let { area ->
+                                world.area = area
+                            } ?: nullError("world.$worldName.area", "(X, Y, Radius)")
                         }
                         world.isAutoSave =
                             get("world.$worldName.save", ConfigDataType.BOOLEAN, true, notFoundError = false)

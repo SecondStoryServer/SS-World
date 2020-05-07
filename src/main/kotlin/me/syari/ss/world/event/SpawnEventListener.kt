@@ -1,13 +1,14 @@
-package me.syari.ss.world
+package me.syari.ss.world.event
 
 import me.syari.ss.core.auto.Event
 import me.syari.ss.core.scheduler.CustomScheduler.runLater
 import me.syari.ss.world.Main.Companion.worldPlugin
+import me.syari.ss.world.SSWorld
 import org.bukkit.event.EventHandler
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 
-object EventListener : Event {
+object SpawnEventListener : Event {
     @EventHandler
     fun on(e: PlayerJoinEvent) {
         val firstSpawnWorld = SSWorld.firstSpawnWorld

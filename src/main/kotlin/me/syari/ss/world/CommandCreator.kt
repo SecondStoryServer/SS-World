@@ -16,6 +16,7 @@ import me.syari.ss.world.ConfigLoader.loadConfig
 import me.syari.ss.world.ConfigLoader.saveWorldConfig
 import me.syari.ss.world.Main.Companion.worldPlugin
 import me.syari.ss.world.creator.SSWorldCreator
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import java.io.File
 
@@ -29,7 +30,8 @@ object CommandCreator : OnEnable {
                 "-t" to element("normal", "flat", "void"),
                 "-s" to element("true", "false")
             ),
-            tab("delete", "unload", "tp") { _, _ -> element(SSWorld.worldNameList) }
+            tab("delete", "unload", "tp") { _, _ -> element(SSWorld.worldNameList) },
+            tab("config") { _, _ -> element("firstspawn", "spawn", "area") }
         ) { sender, args ->
             when (args.whenIndex(0)) {
                 "create" -> {
@@ -45,21 +47,26 @@ object CommandCreator : OnEnable {
                     deleteWorld(args, false)
                 }
                 "config" -> {
+                    when(args.whenIndex(1)){
+                        "firstspawn" -> {
 
+                        }
+                        "spawn" -> {
+
+                        }
+                        "area" -> {
+
+                        }
+                    }
                 }
                 "list" -> {
                     sendList("ワールド一覧", SSWorld.worldNameList)
                 }
                 "tp" -> {
-                    if (sender !is Player) return@createCommand sendError(ErrorMessage.OnlyPlayer)
-                    val worldName = args.getOrNull(1) ?: return@createCommand sendError(ErrorMessage.NotEnterName)
-                    val world = SSWorld.getWorld(worldName) ?: return@createCommand sendError(ErrorMessage.NotExist)
-                    world.teleportSpawn(sender)
+                    teleportWorld(sender, args, 1)
                 }
                 "spawn" -> {
-                    if (sender !is Player) return@createCommand sendError(ErrorMessage.OnlyPlayer)
-                    val world = SSWorld.getWorld(sender) ?: return@createCommand sendError("ワールドが存在しません")
-                    world.teleportSpawn(sender)
+                    teleportSpawn(sender)
                 }
                 else -> {
                     sendHelp(
@@ -75,8 +82,31 @@ object CommandCreator : OnEnable {
             }
         }
 
+        createCommand(worldPlugin, "wtp", "SSWorld",
+            tab { _, _ -> element(SSWorld.worldNameList) }
+        ){ sender, args ->
+            teleportWorld(sender, args, 0)
+        }
+
+        createCommand(worldPlugin, "spawn", "SSWorld"){ sender, _ ->
+            teleportSpawn(sender)
+        }
+
         SSWorld.setDataWorld(worldPlugin.server.worlds.first())
         loadConfig(console)
+    }
+
+    private fun CommandMessage.teleportWorld(sender: CommandSender, args: CommandArgument, worldNameIndex: Int){
+        if (sender !is Player) return sendError(ErrorMessage.OnlyPlayer)
+        val worldName = args.getOrNull(worldNameIndex) ?: return sendError(ErrorMessage.NotEnterName)
+        val world = SSWorld.getWorld(worldName) ?: return sendError(ErrorMessage.NotExistName)
+        world.teleportSpawn(sender)
+    }
+
+    private fun CommandMessage.teleportSpawn(sender: CommandSender){
+        if (sender !is Player) return sendError(ErrorMessage.OnlyPlayer)
+        val world = SSWorld.getWorld(sender) ?: return sendError("ワールドが存在しません")
+        world.teleportSpawn(sender)
     }
 
     private fun CommandMessage.createWorld(args: CommandArgument, isLoad: Boolean) {
