@@ -29,11 +29,7 @@ object CommandCreator : OnEnable {
                 "-t" to element("normal", "flat", "void"),
                 "-s" to element("true", "false")
             ),
-            flag(
-                "delete *",
-                "-r" to element("true", "false")
-            ),
-            tab("delete", "tp") { _, _ -> element(SSWorld.worldNameList) }
+            tab("delete", "unload", "tp") { _, _ -> element(SSWorld.worldNameList) }
         ) { sender, args ->
             when (args.whenIndex(0)) {
                 "create" -> {
@@ -43,23 +39,10 @@ object CommandCreator : OnEnable {
                     createWorld(args, true)
                 }
                 "delete" -> {
-                    val name = args.getOrNull(1)
-                    if (name == null) {
-                        sendError(ErrorMessage.NotEnterName)
-                        return@createCommand sendList(
-                            "ワールド削除オプション",
-                            "&fワールドデータ削除の有無  &a-r <true/&6false&a>"
-                        )
-                    }
-                    val world = SSWorld.getWorld(name) ?: return@createCommand sendError(ErrorMessage.NotExist)
-                    val delete = args.getFlag("-r") == "true"
-                    sendWithPrefix("&fワールド &a${world.name} &f${if (delete) "のデータ" else ""}を削除します")
-                    val result = world.unload(delete)
-                    if (result.isSuccess) {
-                        sendWithPrefix("&fワールド &a${world.name} &fの削除が完了しました")
-                    } else {
-                        sendWithPrefix("&cワールド &a${world.name} &cの削除に失敗しました (${result.message})")
-                    }
+                    deleteWorld(args, true)
+                }
+                "unload" -> {
+                    deleteWorld(args, false)
                 }
                 "config" -> {
 
@@ -128,6 +111,18 @@ object CommandCreator : OnEnable {
             saveWorldConfig(name, environment, worldType, generateStructures)
         } else {
             sendWithPrefix("&cワールド &a$name &fの${type}に失敗しました")
+        }
+    }
+
+    private fun CommandMessage.deleteWorld(args: CommandArgument, deleteWorldFolder: Boolean) {
+        val name = args.getOrNull(1) ?: return sendError(ErrorMessage.NotEnterName)
+        val world = SSWorld.getWorld(name) ?: return sendError(ErrorMessage.NotExist)
+        sendWithPrefix("&fワールド &a${world.name} &f${if (deleteWorldFolder) "のデータ" else ""}を削除します")
+        val result = world.unload(deleteWorldFolder)
+        if (result.isSuccess) {
+            sendWithPrefix("&fワールド &a${world.name} &fの削除が完了しました")
+        } else {
+            sendWithPrefix("&cワールド &a${world.name} &cの削除に失敗しました (${result.message})")
         }
     }
 }
