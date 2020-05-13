@@ -2,7 +2,6 @@ package me.syari.ss.world
 
 import me.syari.ss.core.Main.Companion.console
 import me.syari.ss.core.config.CreateConfig.config
-import me.syari.ss.core.config.CustomConfig
 import me.syari.ss.core.config.dataType.ConfigDataType
 import me.syari.ss.core.world.Vector5D
 import me.syari.ss.world.Main.Companion.worldPlugin
@@ -15,8 +14,8 @@ import org.bukkit.command.CommandSender
 object ConfigLoader {
     val worldConfig by lazy { config(worldPlugin, console, "config.yml", false) }
 
-    fun loadConfig(sender: CommandSender): CustomConfig {
-        return config(worldPlugin, sender, "config.yml", false) {
+    fun loadConfig(sender: CommandSender) {
+        config(worldPlugin, sender, "config.yml", false) {
             val dataWorldName = SSWorld.dataWorld.name
             var firstSpawnWorldName = get("firstspawn", ConfigDataType.STRING, false)
             section("world")?.forEach { worldName ->
@@ -43,7 +42,7 @@ object ConfigLoader {
                         Vector5D.fromString(get("world.$worldName.spawn", ConfigDataType.STRING, true))?.let { spawn ->
                             world.spawnVector5D = spawn
                         }
-                        worldConfig.get("world.$worldName.area", ConfigDataType.STRING, false)?.let {  text ->
+                        get("world.$worldName.area", ConfigDataType.STRING, false)?.let {  text ->
                             WorldArea.fromString(text)?.let { area ->
                                 world.area = area
                             } ?: nullError("world.$worldName.area", "(X, Y, Radius)")
@@ -70,7 +69,7 @@ object ConfigLoader {
         worldType: String?,
         generateStructures: Boolean?
     ) {
-        worldConfig.with {
+        worldConfig.run {
             set("world.$worldName.save", true)
             set("world.$worldName.environment", environment)
             set("world.$worldName.type", worldType)

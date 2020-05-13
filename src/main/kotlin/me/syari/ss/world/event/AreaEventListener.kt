@@ -4,8 +4,8 @@ import me.syari.ss.core.auto.Event
 import me.syari.ss.world.SSWorld
 import org.bukkit.Location
 import org.bukkit.event.EventHandler
-import org.bukkit.event.entity.EntityTeleportEvent
 import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.event.player.PlayerTeleportEvent
 
 object AreaEventListener: Event {
     private fun isNotInArea(location: Location): Boolean {
@@ -21,8 +21,8 @@ object AreaEventListener: Event {
     }
 
     @EventHandler
-    fun on(e: EntityTeleportEvent){
-        val to = e.to ?: return
+    fun on(e: PlayerTeleportEvent){
+        val to = e.to
         if(isNotInArea(to)){
             e.isCancelled = true
         }
