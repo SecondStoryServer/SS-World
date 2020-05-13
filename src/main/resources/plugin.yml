@@ -1,7 +1,0 @@
-name: SS-World
-version: @version@
-api-version: "1.15"
-main: me.syari.ss.world.Main
-author: sya_ri
-depend:
-  - "SS-Core"
