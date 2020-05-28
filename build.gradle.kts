@@ -6,13 +6,15 @@ plugins {
 group = "me.syari.ss.world"
 version = "1.1"
 
+val ssMavenRepoURL: String by extra
+
 repositories {
     mavenCentral()
     maven {
         url = uri("https://papermc.io/repo/repository/maven-public/")
     }
     maven {
-        url = uri(properties["ssMavenRepoURL"] as String)
+        url = uri(ssMavenRepoURL)
     }
 }
 
