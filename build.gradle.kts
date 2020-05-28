@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.syari.ss.world"
-version = "1.0"
+version = "1.1"
 
 repositories {
     mavenCentral()
