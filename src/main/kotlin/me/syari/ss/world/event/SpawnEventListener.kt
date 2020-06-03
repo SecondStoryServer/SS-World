@@ -1,7 +1,7 @@
 package me.syari.ss.world.event
 
 import me.syari.ss.core.auto.Event
-import me.syari.ss.core.scheduler.CustomScheduler.runLater
+import me.syari.ss.core.scheduler.CreateScheduler.runLater
 import me.syari.ss.world.Main.Companion.worldPlugin
 import me.syari.ss.world.SSWorld
 import org.bukkit.event.EventHandler
