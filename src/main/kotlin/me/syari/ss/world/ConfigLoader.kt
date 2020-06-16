@@ -42,7 +42,7 @@ object ConfigLoader {
                         Vector5D.fromString(get("world.$worldName.spawn", ConfigDataType.STRING, true))?.let { spawn ->
                             world.spawnVector5D = spawn
                         }
-                        get("world.$worldName.area", ConfigDataType.STRING, false)?.let {  text ->
+                        get("world.$worldName.area", ConfigDataType.STRING, false)?.let { text ->
                             WorldArea.fromString(text)?.let { area ->
                                 world.area = area
                             } ?: nullError("world.$worldName.area", "(X, Y, Radius)")

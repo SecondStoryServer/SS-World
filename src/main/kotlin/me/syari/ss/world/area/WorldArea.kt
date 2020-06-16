@@ -21,13 +21,13 @@ data class WorldArea(
     companion object {
         fun fromString(text: String): WorldArea? {
             val splitText = text.split(", ")
-            if(splitText.size != 3) return null
+            if (splitText.size != 3) return null
             return try {
                 val x = splitText[0].toDouble()
                 val z = splitText[1].toDouble()
                 val radius = splitText[2].toDouble()
                 WorldArea(x, z, radius)
-            } catch (ex: NumberFormatException){
+            } catch (ex: NumberFormatException) {
                 null
             }
         }

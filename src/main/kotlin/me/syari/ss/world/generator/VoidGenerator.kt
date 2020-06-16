@@ -15,7 +15,7 @@ class VoidGenerator : ChunkGenerator() {
     ): ChunkData {
         return createChunkData(world).apply {
             for (x in 0..15) {
-                for(y in 0..255){
+                for (y in 0..255) {
                     for (z in 0..15) {
                         biome.setBiome(x, y, z, Biome.THE_VOID)
                     }

@@ -37,7 +37,7 @@ object CommandCreator : OnEnable {
                 element(SSWorld.worldNameList)
             },
             tab("config") { _, _ -> element("firstspawn", "spawn", "area") },
-            tab("config firstspawn", "config spawn", "config area"){ _, _ ->
+            tab("config firstspawn", "config spawn", "config area") { _, _ ->
                 element("set")
             }
         ) { sender, args ->
@@ -57,9 +57,9 @@ object CommandCreator : OnEnable {
                 "config" -> {
                     when (args.whenIndex(1)) {
                         "firstspawn" -> {
-                            if(args.whenIndex(2) == "set"){
+                            if (args.whenIndex(2) == "set") {
                                 val world = argsToWorld(args, 3) ?: return@createCommand
-                                if(world.isFistSpawnWorld){
+                                if (world.isFistSpawnWorld) {
                                     val lastFirstSpawnWorld = firstSpawnWorld
                                     world.isFistSpawnWorld = true
                                     sendWithPrefix("サーバースポーンを &6${lastFirstSpawnWorld.name} &fから &6${world.name} &fに変更しました")
@@ -71,10 +71,10 @@ object CommandCreator : OnEnable {
                             }
                         }
                         "spawn" -> {
-                            if(sender !is Player) return@createCommand sendError(ErrorMessage.OnlyPlayer)
+                            if (sender !is Player) return@createCommand sendError(ErrorMessage.OnlyPlayer)
                             val world = SSWorld.getWorld(sender) ?: return@createCommand sendError("ワールドが存在しません")
-                            if(args.whenIndex(2) == "set"){
-                                val vector5D = when(val size = args.size){
+                            if (args.whenIndex(2) == "set") {
+                                val vector5D = when (val size = args.size) {
                                     3 -> {
                                         Vector5D.fromLocation(sender.location)
                                     }
@@ -83,14 +83,14 @@ object CommandCreator : OnEnable {
                                             val x = args[3].toDouble()
                                             val y = args[4].toDouble()
                                             val z = args[5].toDouble()
-                                            if(size == 8){
+                                            if (size == 8) {
                                                 val yaw = args[6].toFloat()
                                                 val pitch = args[7].toFloat()
                                                 Vector5D(x, y, z, yaw, pitch)
                                             } else {
                                                 Vector5D(x, y, z)
                                             }
-                                        } catch (ex: NumberFormatException){
+                                        } catch (ex: NumberFormatException) {
                                             return@createCommand sendError("座標変換に失敗しました")
                                         }
                                     }
@@ -106,11 +106,11 @@ object CommandCreator : OnEnable {
                             }
                         }
                         "area" -> {
-                            if(sender !is Player) return@createCommand sendError(ErrorMessage.OnlyPlayer)
+                            if (sender !is Player) return@createCommand sendError(ErrorMessage.OnlyPlayer)
                             val world = SSWorld.getWorld(sender) ?: return@createCommand sendError("ワールドが存在しません")
                             val lastArea = world.area
-                            if(args.whenIndex(2) == "set"){
-                                val area = when(args.size){
+                            if (args.whenIndex(2) == "set") {
+                                val area = when (args.size) {
                                     4 -> {
                                         if (args.whenIndex(3) != "null") {
                                             val location = sender.location
@@ -134,7 +134,11 @@ object CommandCreator : OnEnable {
                                 }
                                 world.area = area
                                 world.saveArea()
-                                sendWithPrefix("&6${world.name} &fのワールドエリアを &6${toString(lastArea)} &fから &6${toString(area)} &fに変更しました")
+                                sendWithPrefix(
+                                    "&6${world.name} &fのワールドエリアを &6${toString(lastArea)} &fから &6${toString(
+                                        area
+                                    )} &fに変更しました"
+                                )
                             } else {
                                 sendWithPrefix("ワールドエリア: ${toString(lastArea)}")
                             }
@@ -256,7 +260,7 @@ object CommandCreator : OnEnable {
     }
 
     private fun toString(area: WorldArea?): String {
-        return if(area != null){
+        return if (area != null) {
             "&6X:${area.centerX}, Z:${area.centerZ}, radius:${area.radius}"
         } else {
             "&c未設定"

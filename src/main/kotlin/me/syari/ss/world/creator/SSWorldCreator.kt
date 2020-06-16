@@ -29,7 +29,7 @@ class SSWorldCreator(private val name: String) {
                 if (voidWorld) {
                     spawnVector5D = Vector5D(0.5, 64.0, 0.5)
                     val spawnBlock = world.getBlockAt(0, 63, 0)
-                    if(spawnBlock.isEmpty){
+                    if (spawnBlock.isEmpty) {
                         spawnBlock.type = Material.BEDROCK
                     }
                 }

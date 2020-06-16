@@ -11,8 +11,6 @@ import org.bukkit.entity.Player
 import java.io.File
 
 
-
-
 class SSWorld(private val world: World) {
     val name = world.name
 
@@ -104,7 +102,7 @@ class SSWorld(private val world: World) {
         return area?.isInArea(x, z) ?: true
     }
 
-    fun saveArea(){
+    fun saveArea() {
         worldConfig.set("world.$name.area", area?.toString(), true)
     }
 
